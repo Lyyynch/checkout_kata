@@ -21,16 +21,11 @@ public class Checkout
         
         _skuCodes.Add(validSku.Code);
         
-        Console.WriteLine(_skuCodes);
-
-        
         var skuSpecial = _skuSpecialRetrievalService.GetSkuSpecialByCode(code);
-        
-        Console.WriteLine(skuSpecial);
 
-        var count = _skuCodes.Count(skuCode => skuCode.StartsWith(code));
+        var count = _skuCodes.Count(skuCode => skuCode == code);
 
-        if (skuSpecial != null && (count == skuSpecial.Quantity || count % skuSpecial.Quantity == 0))
+        if (skuSpecial != null && count % skuSpecial.Quantity == 0)
         {
             Total += skuSpecial.NewPrice;
         }
