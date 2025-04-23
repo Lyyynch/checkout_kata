@@ -13,14 +13,7 @@ public class Checkout
     {
         get
         {
-            var total = 0;
-            
-            foreach (var (_, sku) in _skuCodes)
-            {
-                total += sku.GetTotal();
-            }
-            
-            return total;
+            return _skuCodes.Values.Sum(sku => sku.GetTotal());
         }
     }
 
@@ -28,14 +21,7 @@ public class Checkout
     {
         get
         {
-            var discountedTotal = 0;
-            
-            foreach (var (_, sku) in _skuCodes)
-            {
-                discountedTotal += sku.GetDiscountedTotal();
-            }
-            
-            return discountedTotal;
+            return _skuCodes.Values.Sum(sku => sku.GetDiscountedTotal());
         }
     }
 
