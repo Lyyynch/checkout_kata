@@ -79,6 +79,44 @@ public class CheckoutTests
         Assert.Equal(expectedPrice, total);
     }
 
+    [Theory]
+    [InlineData("E", 4, 135)]
+    [InlineData("G", 4, 90)]
+    public void NewCheckout_FourItemsScanned_BuyThreeGetOneFreeTriggered_ShouldReturnTotal(string itemCode,
+        int scanCount, int expectedPrice)
+    {
+        ScanMultiple(_checkout, itemCode, scanCount);
+        
+        var total = _checkout.Total;
+        Assert.Equal(expectedPrice, total);
+    }
+
+    [Fact]
+    public void NewCheckout_TwoItemsScanned_BuyTwoGetPercentageOff_ShouldReturnTotal()
+    {
+        const string itemCode = "F";
+        const int scanCount = 2;
+        const int expectedPrice = 70;
+        
+        ScanMultiple(_checkout, itemCode, scanCount);
+        
+        var total = _checkout.Total;
+        Assert.Equal(expectedPrice, total);
+    }
+
+    [Fact(Skip = "Not implemented yet")]
+    public void NewCheckout_EightItemsScanned_BuyThreeGetOneFreeTriggeredOnce_ShouldReturnTotal()
+    {
+        const string itemCode = "G";
+        const int scanCount = 8;
+        const int expectedPrice = 210;
+            
+        ScanMultiple(_checkout, itemCode, scanCount);
+        
+        var total = _checkout.Total;
+        Assert.Equal(expectedPrice, total);
+    }
+
     private static void ScanMultiple(Checkout checkout, string code, int scanCount)
     {
         var count = 0;
