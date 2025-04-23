@@ -4,7 +4,7 @@ namespace CheckoutKata.Tests;
 
 public class CheckoutTests
 {
-    private readonly Checkout _checkout = new (new SkuRetrievalServiceStub(), new SkuSpecialRetrievalServiceStub());
+    private readonly Checkout _checkout = new (new SkuRetrievalServiceStub());
     
     [Fact]
     public void NewCheckout_NoItemsScanned_ShouldReturnZero()

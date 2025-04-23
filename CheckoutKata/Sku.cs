@@ -1,3 +1,3 @@
 namespace CheckoutKata;
 
-public record Sku(string Code, int Price);
+public record Sku(string Code, int Price, SkuSpecial? Special);
