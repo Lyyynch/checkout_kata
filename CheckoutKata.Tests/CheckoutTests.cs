@@ -104,15 +104,14 @@ public class CheckoutTests
         Assert.Equal(expectedPrice, total);
     }
 
-    [Fact(Skip = "Not implemented yet")]
-    public void NewCheckout_EightItemsScanned_BuyThreeGetOneFreeTriggeredOnce_ShouldReturnTotal()
+    [Theory]
+    [InlineData("G", 8, 210)]
+    [InlineData("H", 16, 780)]
+    public void NewCheckout_EightItemsScanned_BuyThreeGetOneFreeTriggeredOnce_ShouldReturnTotal(string itemCode, 
+        int scanCount, int expectedPrice)
     {
-        const string itemCode = "G";
-        const int scanCount = 8;
-        const int expectedPrice = 210;
-            
         ScanMultiple(_checkout, itemCode, scanCount);
-        
+
         var total = _checkout.Total;
         Assert.Equal(expectedPrice, total);
     }

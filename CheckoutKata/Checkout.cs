@@ -23,7 +23,19 @@ public class Checkout
         
         Total += validSku.Price;
 
-        if (validSku.Special != null && count % validSku.Special.Quantity == 0)
+        if (validSku.Special == null)
+        {
+            return;
+        }
+
+        var limitReached = false;
+
+        if (validSku.Special.Limit != null && count > (validSku.Special.Quantity * validSku.Special.Limit))
+        {
+            limitReached = true;
+        }
+
+        if (count % validSku.Special.Quantity == 0 && !limitReached)
         {
             Total -= validSku.Special.Discount;
         }

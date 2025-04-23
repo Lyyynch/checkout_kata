@@ -10,7 +10,8 @@ public class SkuRetrievalServiceStub : ISkuRetrievalService
         new Sku("D", 15),
         new Sku("E", 45, new SkuSpecial(4, 45)),
         new Sku("F", 50, new SkuSpecial(2, 30)),
-        new Sku("G", 30, new SkuSpecial(4, 30, 1))
+        new Sku("G", 30, new SkuSpecial(4, 30, 1)),
+        new Sku("H", 60, new SkuSpecial(4, 60, 3))
     ];
     
     public Sku GetSkuByCode(string skuCode)
