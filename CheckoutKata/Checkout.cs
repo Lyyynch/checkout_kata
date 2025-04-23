@@ -8,34 +8,47 @@ public class Checkout
     {
         _skuRetrievalService = skuRetrievalService;
     }
-    
-    public int Total { get; private set; }
-    
-    public int DiscountedTotal { get; private set; }
-    
-    private readonly List<string> _skuCodes = new();
+
+    public int Total
+    {
+        get
+        {
+            var total = 0;
+            
+            foreach (var (_, sku) in _skuCodes)
+            {
+                total += sku.GetTotal();
+            }
+            
+            return total;
+        }
+    }
+
+    public int DiscountedTotal
+    {
+        get
+        {
+            var discountedTotal = 0;
+            
+            foreach (var (_, sku) in _skuCodes)
+            {
+                discountedTotal += sku.GetDiscountedTotal();
+            }
+            
+            return discountedTotal;
+        }
+    }
+
+    private readonly Dictionary<string, Sku> _skuCodes = new();
 
     public void Scan(string code)
     {
-        var validSku = _skuRetrievalService.GetSkuByCode(code);
-        
-        _skuCodes.Add(validSku.Code);
-
-        var count = _skuCodes.Count(skuCode => skuCode == code);
-        
-        Total += validSku.Price;
-        DiscountedTotal += validSku.Price;
-
-        if (validSku.Special == null)
+        if (!_skuCodes.TryGetValue(code, out var validSku))
         {
-            return;
+            validSku = _skuRetrievalService.GetSkuByCode(code);
+            _skuCodes.Add(code, validSku);
         }
-
-        var limitReached = validSku.Special.Limit != null && count > (validSku.Special.Quantity * validSku.Special.Limit);
-
-        if (count % validSku.Special.Quantity == 0 && !limitReached)
-        {
-            DiscountedTotal -= validSku.Special.Discount;
-        }
+        
+        validSku.Increment();
     }
 }
