@@ -28,12 +28,7 @@ public class Checkout
             return;
         }
 
-        var limitReached = false;
-
-        if (validSku.Special.Limit != null && count > (validSku.Special.Quantity * validSku.Special.Limit))
-        {
-            limitReached = true;
-        }
+        var limitReached = validSku.Special.Limit != null && count > (validSku.Special.Quantity * validSku.Special.Limit);
 
         if (count % validSku.Special.Quantity == 0 && !limitReached)
         {
