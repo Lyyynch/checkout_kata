@@ -11,6 +11,8 @@ public class Checkout
     
     public int Total { get; private set; }
     
+    public int DiscountedTotal { get; private set; }
+    
     private readonly List<string> _skuCodes = new();
 
     public void Scan(string code)
@@ -22,6 +24,7 @@ public class Checkout
         var count = _skuCodes.Count(skuCode => skuCode == code);
         
         Total += validSku.Price;
+        DiscountedTotal += validSku.Price;
 
         if (validSku.Special == null)
         {
@@ -32,7 +35,7 @@ public class Checkout
 
         if (count % validSku.Special.Quantity == 0 && !limitReached)
         {
-            Total -= validSku.Special.Discount;
+            DiscountedTotal -= validSku.Special.Discount;
         }
     }
 }
