@@ -39,20 +39,6 @@ public class Sku
     {
         var total = GetTotal();
 
-        if (_skuSpecial == null)
-        {
-            return total;
-        }
-        
-        var fullDiscountCount = _count - (_count % _skuSpecial.Quantity);
-        var potentialDiscountCount = fullDiscountCount / _skuSpecial.Quantity;
-
-        if (_skuSpecial.Limit is null or 0)
-        {
-            return total - (potentialDiscountCount * _skuSpecial.Discount);
-        }
-        
-        return total - (Math.Min(potentialDiscountCount, _skuSpecial.Limit.Value) * _skuSpecial.Discount);
-
+        return _skuSpecial?.GetDiscount(_count, total) ?? total;
     }
 }
