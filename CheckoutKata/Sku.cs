@@ -25,6 +25,11 @@ public class Sku
         _count--;
     }
 
+    public int GetCount()
+    {
+        return _count;
+    }
+
     public int GetTotal()
     {
         return _count * _price;
