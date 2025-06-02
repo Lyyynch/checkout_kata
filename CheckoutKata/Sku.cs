@@ -3,17 +3,22 @@ namespace CheckoutKata;
 public class Sku
 {
     private readonly int _price;
-    private readonly SkuSpecial? _skuSpecial = null;
+    private SkuSpecial? _skuSpecial = null;
     private int _count;
 
-    public Sku(string code, int price, SkuSpecial? skuSpecial = null)
+    public Sku(string code, int price)
     {
         Code = code;
         _price = price;
-        _skuSpecial = skuSpecial;
     }
     
     public string Code { get; }
+    public int Price => _price;
+
+    public void CreateSpecial(SpecialType type, int quantity, int discount, int? limit = null)
+    {
+        _skuSpecial = new SkuSpecial(this, type, quantity, discount, limit);
+    }
 
     public void Increment()
     {
@@ -30,15 +35,15 @@ public class Sku
         return _count;
     }
 
-    public int GetTotal()
+    public float GetTotal()
     {
         return _count * _price;
     }
 
-    public int GetDiscountedTotal()
+    public float GetDiscountedTotal()
     {
         var total = GetTotal();
 
-        return _skuSpecial?.GetDiscount(_count, total) ?? total;
+        return _skuSpecial?.GetDiscount() ?? total;
     }
 }

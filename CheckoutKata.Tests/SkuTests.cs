@@ -2,62 +2,87 @@ namespace CheckoutKata.Tests;
 
 public class SkuTests
 {
-    private readonly Sku _sku = new Sku("H", 20, new SkuSpecial(4, 20, 3));
+    private readonly Sku _skuFlatSpecial = new("H", 20);
+    private readonly Sku _skuPercentSpecial = new("I", 20);
+
+    public SkuTests()
+    {
+        _skuFlatSpecial.CreateSpecial(SpecialType.Flat,4, 20, 3);
+        _skuPercentSpecial.CreateSpecial(SpecialType.Percentage, 2, 50);
+    }
     
     [Fact]
     public void NewSku_IncrementCountByOne_ShouldReturnCountOfOne()
     {
-        _sku.Increment();
+        _skuFlatSpecial.Increment();
         
-        var count = _sku.GetCount();
+        var count = _skuFlatSpecial.GetCount();
         Assert.Equal(1, count);
     }
 
     [Fact]
     public void NewSku_IncrementCountByTwo_DecrementCountByTwo_ShouldReturnCountOfOne()
     {
-        IncrementSku(_sku, 2);
+        IncrementSku(_skuFlatSpecial, 2);
         
-        DecrementSku(_sku, 1);
+        DecrementSku(_skuFlatSpecial, 1);
         
-        var count = _sku.GetCount();
+        var count = _skuFlatSpecial.GetCount();
         Assert.Equal(1, count);
     }
 
     [Fact]
     public void NewSku_IncrementCountByThree_ShouldReturnTotalOfSixty()
     {
-        IncrementSku(_sku, 3);
+        IncrementSku(_skuFlatSpecial, 3);
         
-        var total = _sku.GetTotal();
+        var total = _skuFlatSpecial.GetTotal();
         Assert.Equal(60, total);
     }
 
     [Fact]
     public void NewSku_IncrementCountByThree_ShouldReturnDiscountTotalOfSixty()
     {
-        IncrementSku(_sku, 3);
+        IncrementSku(_skuFlatSpecial, 3);
         
-        var total = _sku.GetDiscountedTotal();
+        var total = _skuFlatSpecial.GetDiscountedTotal();
         Assert.Equal(60, total);
     }
 
     [Fact]
     public void NewSku_IncrementCountByTwelve_ShouldReturnTotalOf240()
     {
-        IncrementSku(_sku, 12);
+        IncrementSku(_skuFlatSpecial, 12);
 
-        var total = _sku.GetTotal();
+        var total = _skuFlatSpecial.GetTotal();
         Assert.Equal(240, total);
     }
     
     [Fact]
     public void NewSku_IncrementCountByTwelve_ShouldReturnDiscountedTotalOf180()
     {
-        IncrementSku(_sku, 12);
+        IncrementSku(_skuFlatSpecial, 12);
 
-        var total = _sku.GetDiscountedTotal();
+        var total = _skuFlatSpecial.GetDiscountedTotal();
         Assert.Equal(180, total);
+    }
+    
+    [Fact]
+    public void NewSku_IncrementCountByTen_ShouldReturnTotalOf200()
+    {
+        IncrementSku(_skuPercentSpecial, 10);
+        
+        var total = _skuPercentSpecial.GetTotal();
+        Assert.Equal(200, total);
+    }
+
+    [Fact]
+    public void NewSku_IncrementCountByTen_ShouldReturnDiscountedTotalOf100()
+    {
+        IncrementSku(_skuPercentSpecial, 10);
+        
+        var total = _skuPercentSpecial.GetDiscountedTotal();
+        Assert.Equal(100, total);
     }
 
     private static void IncrementSku(Sku sku, int count)

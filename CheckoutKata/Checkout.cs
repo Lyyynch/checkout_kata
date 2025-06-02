@@ -9,7 +9,7 @@ public class Checkout
         _skuRetrievalService = skuRetrievalService;
     }
 
-    public int Total
+    public float Total
     {
         get
         {
@@ -17,7 +17,7 @@ public class Checkout
         }
     }
 
-    public int DiscountedTotal
+    public float DiscountedTotal
     {
         get
         {
