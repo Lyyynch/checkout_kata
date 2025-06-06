@@ -41,7 +41,7 @@ public class SkuSpecial
         return _type switch
         {
             SpecialType.Flat => GetFlatDiscount(skuTotal, potentialDiscountCount),
-            SpecialType.BuyXGetYFree => GetBuyXGetYFreeDiscount(skuTotal, potentialDiscountCount, skuPrice),
+            SpecialType.BuyXGetYFree => GetBuyXGetYFreeDiscount(potentialDiscountCount, skuCount, skuPrice),
             SpecialType.Percentage => GetPercentageDiscount(potentialDiscountCount, skuCount, skuPrice),
             _ => skuTotal
         };
@@ -57,34 +57,35 @@ public class SkuSpecial
         return skuTotal - (Math.Min(potentialDiscountCount, _limit.Value) * _discount);
     }
 
-    private float GetBuyXGetYFreeDiscount(float skuTotal, int potentialDiscountCount, int skuPrice)
+    private float GetBuyXGetYFreeDiscount(int potentialDiscountCount, int skuCount, int skuPrice)
     {
-        var soItsDifferent = true;
-        
-        if (!soItsDifferent)
-            return skuTotal;
-        
-        if (_limit is null or 0)
+        if (_limit is { } or 0)
         {
-            return skuTotal - (potentialDiscountCount * skuPrice);
+            potentialDiscountCount = Math.Min(potentialDiscountCount, _limit.Value);
         }
         
-        return skuTotal - (Math.Min(potentialDiscountCount, _limit.Value) * skuPrice);
+        var discountedItems = potentialDiscountCount * _quantity;
+        var fullPriceItems = skuCount - discountedItems;
+        
+        var discountedTotal = (discountedItems * skuPrice) - (potentialDiscountCount * skuPrice);
+        float fullPriceTotal = fullPriceItems * skuPrice;
+        
+        return discountedTotal + fullPriceTotal;
     }
 
     private float GetPercentageDiscount(int potentialDiscountCount, int skuCount, int skuPrice)
     {
-        float percentDiscount = 1 - (_discount / 100f);
+        var percentDiscount = 1 - (_discount / 100f);
         
         if (_limit is { } or > 0)
         {
             potentialDiscountCount = Math.Min(potentialDiscountCount, _limit.Value);
         }
 
-        int discountedItems = potentialDiscountCount * _quantity;
-        int fullPriceItems = skuCount - discountedItems;
+        var discountedItems = potentialDiscountCount * _quantity;
+        var fullPriceItems = skuCount - discountedItems;
         
-        float discountedTotal = discountedItems * skuPrice * percentDiscount;
+        var discountedTotal = discountedItems * skuPrice * percentDiscount;
         float fullPriceTotal = fullPriceItems * skuPrice;
         
         return discountedTotal + fullPriceTotal;
