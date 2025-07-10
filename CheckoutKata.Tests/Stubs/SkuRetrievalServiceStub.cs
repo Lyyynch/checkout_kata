@@ -8,9 +8,9 @@ public class SkuRetrievalServiceStub : ISkuRetrievalService
         new("B", 30, new FlatDiscountSkuSpecial(2, 15)),
         new("C", 20),
         new("D", 15),
-        new("E", 45, new BuyXGetYFreeDiscountSkuSpecial(4, 45)),
+        new("E", 45, new BuyXGetYFreeDiscountSkuSpecial(4)),
         new("F", 50, new PercentageDiscountSkuSpecial(2, 30)),
-        new("G", 30, new BuyXGetYFreeDiscountSkuSpecial(4, 30, 1)),
+        new("G", 30, new BuyXGetYFreeDiscountSkuSpecial(4, 1)),
         new("H", 60, new FlatDiscountSkuSpecial(4, 60, 3))
     ];
     

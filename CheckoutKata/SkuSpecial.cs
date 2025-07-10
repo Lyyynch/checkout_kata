@@ -3,19 +3,13 @@ namespace CheckoutKata;
 public abstract class SkuSpecial
 {
     private readonly int _quantity;
-    private readonly int _discount;
-    private readonly int? _limit;
     
-    protected SkuSpecial(int quantity, int discount, int? limit = null)
+    protected SkuSpecial(int quantity)
     {
         _quantity = quantity;
-        _discount = discount;
-        _limit = limit;
     }
 
     protected int Quantity => _quantity;
-    protected int Discount => _discount;
-    protected int? Limit => _limit;
 
     public float GetDiscount(Sku sku)
     {
@@ -38,8 +32,13 @@ public abstract class SkuSpecial
 
 public class FlatDiscountSkuSpecial : SkuSpecial
 {
-    public FlatDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity, discount, limit)
+    private readonly int _discount;
+    private readonly int? _limit;
+    
+    public FlatDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity)
     {
+        _discount = discount;
+        _limit = limit;
     }
 
     protected override float OnGetDiscount(Sku sku)
@@ -50,19 +49,22 @@ public class FlatDiscountSkuSpecial : SkuSpecial
         var fullDiscountCount = skuCount - (skuCount % Quantity);
         var potentialDiscountCount = fullDiscountCount / Quantity;
         
-        if (Limit is null or 0)
+        if (_limit is null or 0)
         {
-            return skuTotal - (potentialDiscountCount * Discount);
+            return skuTotal - (potentialDiscountCount * _discount);
         }
         
-        return skuTotal - (Math.Min(potentialDiscountCount, Limit.Value) * Discount);
+        return skuTotal - (Math.Min(potentialDiscountCount, _limit.Value) * _discount);
     }
 }
 
 public class BuyXGetYFreeDiscountSkuSpecial : SkuSpecial
 {
-    public BuyXGetYFreeDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity, discount, limit)
+    private readonly int? _limit;
+    
+    public BuyXGetYFreeDiscountSkuSpecial(int quantity, int? limit = null) : base(quantity)
     {
+        _limit = limit;
     }
 
     protected override float OnGetDiscount(Sku sku)
@@ -73,9 +75,9 @@ public class BuyXGetYFreeDiscountSkuSpecial : SkuSpecial
         var fullDiscountCount = skuCount - (skuCount % Quantity);
         var potentialDiscountCount = fullDiscountCount / Quantity;
         
-        if (Limit is { } or 0)
+        if (_limit is { } or 0)
         {
-            potentialDiscountCount = Math.Min(potentialDiscountCount, Limit.Value);
+            potentialDiscountCount = Math.Min(potentialDiscountCount, _limit.Value);
         }
         
         var discountedItems = potentialDiscountCount * Quantity;
@@ -90,8 +92,13 @@ public class BuyXGetYFreeDiscountSkuSpecial : SkuSpecial
 
 public class PercentageDiscountSkuSpecial : SkuSpecial
 {
-    public PercentageDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity, discount, limit)
+    private readonly int _discount;
+    private readonly int? _limit;
+    
+    public PercentageDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity)
     {
+        _discount = discount;
+        _limit = limit;
     }
 
     protected override float OnGetDiscount(Sku sku)
@@ -102,11 +109,11 @@ public class PercentageDiscountSkuSpecial : SkuSpecial
         var fullDiscountCount = skuCount - (skuCount % Quantity);
         var potentialDiscountCount = fullDiscountCount / Quantity;
         
-        var percentDiscount = 1 - (Discount / 100f);
+        var percentDiscount = 1 - (_discount / 100f);
         
-        if (Limit is { } or > 0)
+        if (_limit is { } or > 0)
         {
-            potentialDiscountCount = Math.Min(potentialDiscountCount, Limit.Value);
+            potentialDiscountCount = Math.Min(potentialDiscountCount, _limit.Value);
         }
 
         var discountedItems = potentialDiscountCount * Quantity;
