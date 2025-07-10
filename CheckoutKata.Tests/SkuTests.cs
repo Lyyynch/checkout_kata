@@ -2,14 +2,8 @@ namespace CheckoutKata.Tests;
 
 public class SkuTests
 {
-    private readonly Sku _skuFlatSpecial = new("H", 20);
-    private readonly Sku _skuPercentSpecial = new("I", 20);
-
-    public SkuTests()
-    {
-        _skuFlatSpecial.CreateSpecial(SpecialType.Flat,4, 20, 3);
-        _skuPercentSpecial.CreateSpecial(SpecialType.Percentage, 2, 50);
-    }
+    private readonly Sku _skuFlatSpecial = new("H", 20, new FlatDiscountSkuSpecial(4, 20 , 3));
+    private readonly Sku _skuPercentSpecial = new("I", 20, new PercentageDiscountSkuSpecial(2, 50));
     
     [Fact]
     public void NewSku_IncrementCountByOne_ShouldReturnCountOfOne()
