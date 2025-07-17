@@ -1,34 +1,38 @@
 namespace CheckoutKata;
 
-public enum SpecialType
+public interface ISpecialLimits
 {
-    Flat,
-    BuyXGetYFree,
-    Percentage
+    int? Limit { get; }
 }
 
-public class SkuSpecial
+internal static class SpecialLimitsExtension
+{
+    public static int GetPotentialDiscountCount(this ISpecialLimits limits, int discountCount)
+    {
+        if (limits.Limit is { } or 0)
+        {
+            discountCount = Math.Min(discountCount, limits.Limit.Value);
+        }
+        
+        return discountCount;
+    }
+}
+
+public abstract class SkuSpecial
 {
     private readonly int _quantity;
-    private readonly int _discount;
-    private readonly int? _limit;
-    private readonly SpecialType _type;
-    private readonly Sku _sku;
     
-    public SkuSpecial(Sku sku, SpecialType type, int quantity, int discount, int? limit = null)
+    protected SkuSpecial(int quantity)
     {
-        _sku = sku;
-        _type = type;
         _quantity = quantity;
-        _discount = discount;
-        _limit = limit;
     }
 
-    public float GetDiscount()
+    protected int Quantity => _quantity;
+
+    public float GetDiscount(Sku sku)
     {
-        var skuCount = _sku.GetCount();
-        var skuTotal = _sku.GetTotal();
-        var skuPrice = _sku.Price;
+        var skuCount = sku.GetCount();
+        var skuTotal = sku.GetTotal();
         
         var fullDiscountCount = skuCount - (skuCount % _quantity);
         var potentialDiscountCount = fullDiscountCount / _quantity;
@@ -38,17 +42,33 @@ public class SkuSpecial
             return skuTotal;
         }
 
-        return _type switch
-        {
-            SpecialType.Flat => GetFlatDiscount(skuTotal, potentialDiscountCount),
-            SpecialType.BuyXGetYFree => GetBuyXGetYFreeDiscount(potentialDiscountCount, skuCount, skuPrice),
-            SpecialType.Percentage => GetPercentageDiscount(potentialDiscountCount, skuCount, skuPrice),
-            _ => skuTotal
-        };
+        return OnGetDiscount(sku);
+    }
+    
+    protected abstract float OnGetDiscount(Sku sku);
+}
+
+public class FlatDiscountSkuSpecial : SkuSpecial, ISpecialLimits
+{
+    private readonly int _discount;
+    private readonly int? _limit;
+    
+    public int? Limit => _limit;
+    
+    public FlatDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity)
+    {
+        _discount = discount;
+        _limit = limit;
     }
 
-    private float GetFlatDiscount(float skuTotal, int potentialDiscountCount)
+    protected override float OnGetDiscount(Sku sku)
     {
+        var skuCount = sku.GetCount();
+        var skuTotal = sku.GetTotal();
+        
+        var fullDiscountCount = skuCount - (skuCount % Quantity);
+        var potentialDiscountCount = fullDiscountCount / Quantity;
+        
         if (_limit is null or 0)
         {
             return skuTotal - (potentialDiscountCount * _discount);
@@ -56,15 +76,30 @@ public class SkuSpecial
         
         return skuTotal - (Math.Min(potentialDiscountCount, _limit.Value) * _discount);
     }
+}
 
-    private float GetBuyXGetYFreeDiscount(int potentialDiscountCount, int skuCount, int skuPrice)
+public class BuyXGetYFreeDiscountSkuSpecial : SkuSpecial, ISpecialLimits
+{
+    private readonly int? _limit;
+    
+    public int? Limit => _limit;
+    
+    public BuyXGetYFreeDiscountSkuSpecial(int quantity, int? limit = null) : base(quantity)
     {
-        if (_limit is { } or 0)
-        {
-            potentialDiscountCount = Math.Min(potentialDiscountCount, _limit.Value);
-        }
+        _limit = limit;
+    }
+
+    protected override float OnGetDiscount(Sku sku)
+    {
+        var skuCount = sku.GetCount();
+        var skuPrice = sku.Price;
         
-        var discountedItems = potentialDiscountCount * _quantity;
+        var fullDiscountCount = skuCount - (skuCount % Quantity);
+        var potentialDiscountCount = fullDiscountCount / Quantity;
+
+        potentialDiscountCount = this.GetPotentialDiscountCount(potentialDiscountCount);
+        
+        var discountedItems = potentialDiscountCount * Quantity;
         var fullPriceItems = skuCount - discountedItems;
         
         var discountedTotal = (discountedItems * skuPrice) - (potentialDiscountCount * skuPrice);
@@ -72,17 +107,34 @@ public class SkuSpecial
         
         return discountedTotal + fullPriceTotal;
     }
+}
 
-    private float GetPercentageDiscount(int potentialDiscountCount, int skuCount, int skuPrice)
+public class PercentageDiscountSkuSpecial : SkuSpecial, ISpecialLimits
+{
+    private readonly int _discount;
+    private readonly int? _limit;
+    
+    public int? Limit => _limit;
+    
+    public PercentageDiscountSkuSpecial(int quantity, int discount, int? limit = null) : base(quantity)
     {
+        _discount = discount;
+        _limit = limit;
+    }
+
+    protected override float OnGetDiscount(Sku sku)
+    {
+        var skuCount = sku.GetCount();
+        var skuPrice = sku.Price;
+        
+        var fullDiscountCount = skuCount - (skuCount % Quantity);
+        var potentialDiscountCount = fullDiscountCount / Quantity;
+        
         var percentDiscount = 1 - (_discount / 100f);
         
-        if (_limit is { } or > 0)
-        {
-            potentialDiscountCount = Math.Min(potentialDiscountCount, _limit.Value);
-        }
+        potentialDiscountCount = this.GetPotentialDiscountCount(potentialDiscountCount);
 
-        var discountedItems = potentialDiscountCount * _quantity;
+        var discountedItems = potentialDiscountCount * Quantity;
         var fullPriceItems = skuCount - discountedItems;
         
         var discountedTotal = discountedItems * skuPrice * percentDiscount;
